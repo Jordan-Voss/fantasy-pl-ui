@@ -9,8 +9,12 @@ import {
 	View,
 	ScrollView,
 	Platform,
+	Alert,
 } from 'react-native';
-import React, { useContext } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Linking from 'expo-linking';
+
+import React, { useContext, useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -25,9 +29,44 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import InputField from '../components/InputField';
 import { AuthContext } from '../context/AuthContext';
+import { BASE_API_URL, ACCESS_TOKEN, GOOGLE_AUTH_URL } from '../config/config';
 
 const Login = ({ navigation }) => {
-	const { login } = useContext(AuthContext);
+	const [email, setEmail] = useState('');
+	const [password, setPassword] = useState('');
+
+	const {
+		login,
+		logout,
+		setUserToken,
+		currentUser,
+		setCurrentUser,
+		isLoading,
+		userToken,
+	} = useContext(AuthContext);
+	const handleLogin = () => {
+		console.log('login requested');
+		const loginRequest = JSON.stringify({
+			email: email,
+			password: password,
+		});
+		login(loginRequest).then((response) => {
+			console.log(response);
+			if (response.message === 'User not enabled') {
+				alert('Please confirm your account');
+			}
+			let data = JSON.parse(JSON.stringify(response));
+			setUserToken(response.token);
+			setCurrentUser(response.user);
+			AsyncStorage.setItem(ACCESS_TOKEN, response.token);
+			AsyncStorage.setItem('Current User', response.user);
+		});
+	};
+
+	const handleGoogleLogin = () => {
+		Linking.openURL(GOOGLE_AUTH_URL);
+	};
+
 	return (
 		<SafeAreaView
 			style={{
@@ -87,6 +126,7 @@ const Login = ({ navigation }) => {
 						style={{ marginLeft: 20 }}
 					/>
 					<TextInput
+						onChangeText={(text) => setEmail(text)}
 						style={{
 							height: 50,
 							// marginLeft: '40%',
@@ -119,6 +159,7 @@ const Login = ({ navigation }) => {
 						style={{ marginLeft: 20 }}
 					/>
 					<TextInput
+						onChangeText={(text) => setPassword(text)}
 						style={{
 							height: 50,
 							// marginLeft: '40%',
@@ -156,7 +197,7 @@ const Login = ({ navigation }) => {
 					}}
 				>
 					<TouchableOpacity
-						onPress={() => {}}
+						onPress={() => handleGoogleLogin()}
 						style={{
 							borderColor: '#ddd',
 							borderWidth: 2,
@@ -192,7 +233,7 @@ const Login = ({ navigation }) => {
 					</TouchableOpacity>
 				</View>
 				<TouchableOpacity
-					onPress={() => login()}
+					onPress={() => handleLogin()}
 					style={{
 						backgroundColor: '#50f6ff',
 						padding: 20,

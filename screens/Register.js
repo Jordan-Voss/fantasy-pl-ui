@@ -13,7 +13,9 @@ import {
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-
+import React, { useContext, useState, useEffect } from 'react';
+import { AuthContext } from '../context/AuthContext';
+import { BASE_API_URL, ACCESS_TOKEN } from '../config/config';
 import LogoSvg from '../components/LogoSvg';
 import Logo from '../assets/image2vector.svg';
 import Google from '../assets/google.svg';
@@ -24,6 +26,37 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const Register = ({ navigation }) => {
+	const [email, setEmail] = useState('');
+	const [password, setPassword] = useState('');
+	const [confirmPassword, setConfirmPassword] = useState('');
+	const [firstName, setFirstName] = useState('');
+	const [lastName, setLastName] = useState('');
+	const [username, setusername] = useState('');
+
+	const {
+		login,
+		logout,
+		setUserToken,
+		currentUser,
+		setCurrentUser,
+		isLoading,
+		userToken,
+		register,
+	} = useContext(AuthContext);
+	const handleRegister = () => {
+		console.log('register requested');
+		const registerRequest = JSON.stringify({
+			email: email,
+			password: password,
+			firstName: firstName,
+			lastName: lastName,
+			username: username,
+		});
+		register(registerRequest).then((response) => {
+			console.log(response);
+			navigation.navigate('Login');
+		});
+	};
 	return (
 		<SafeAreaView
 			style={{
@@ -83,6 +116,7 @@ const Register = ({ navigation }) => {
 						style={{ marginLeft: 20 }}
 					/>
 					<TextInput
+						onChangeText={(text) => setFirstName(text)}
 						style={{
 							height: 50,
 							// marginLeft: '40%',
@@ -115,6 +149,7 @@ const Register = ({ navigation }) => {
 						style={{ marginLeft: 20 }}
 					/>
 					<TextInput
+						onChangeText={(text) => setLastName(text)}
 						style={{
 							height: 50,
 							// marginLeft: '40%',
@@ -140,6 +175,39 @@ const Register = ({ navigation }) => {
 						flexDirection: 'row',
 					}}
 				>
+					<MaterialCommunityIcons
+						name='account-outline'
+						size={20}
+						color='#666'
+						style={{ marginLeft: 20 }}
+					/>
+					<TextInput
+						onChangeText={(text) => setusername(text)}
+						style={{
+							height: 50,
+							// marginLeft: '40%',
+							flex: 1,
+							padding: 10,
+							marginLeft: 20,
+						}}
+						placeholder='Username.'
+						placeholderTextColor='#003f5c'
+						keyboardType='email-address'
+						// onChangeText={(password) => setPassword(password)}
+					/>
+				</View>
+				<View
+					style={{
+						backgroundColor: '#97e6f0',
+						borderRadius: 30,
+						width: '70%',
+						height: 45,
+						marginBottom: 20,
+						justifyContent: 'center',
+						alignItems: 'center',
+						flexDirection: 'row',
+					}}
+				>
 					<MaterialIcons
 						name='alternate-email'
 						size={20}
@@ -147,6 +215,7 @@ const Register = ({ navigation }) => {
 						style={{ marginLeft: 20 }}
 					/>
 					<TextInput
+						onChangeText={(text) => setEmail(text)}
 						style={{
 							height: 50,
 							// marginLeft: '40%',
@@ -179,6 +248,7 @@ const Register = ({ navigation }) => {
 						style={{ marginLeft: 20 }}
 					/>
 					<TextInput
+						onChangeText={(text) => setPassword(text)}
 						style={{
 							height: 50,
 							// marginLeft: '40%',
@@ -211,6 +281,7 @@ const Register = ({ navigation }) => {
 						style={{ marginLeft: 20 }}
 					/>
 					<TextInput
+						onChangeText={(text) => setConfirmPassword(text)}
 						style={{
 							height: 50,
 							// marginLeft: '40%',
@@ -272,7 +343,7 @@ const Register = ({ navigation }) => {
 					</TouchableOpacity>
 				</View>
 				<TouchableOpacity
-					onPress={() => navigation.navigate('Login')}
+					onPress={() => handleRegister()}
 					style={{
 						backgroundColor: '#50f6ff',
 						padding: 20,

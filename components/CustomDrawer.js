@@ -24,7 +24,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const CustomDrawer = (props) => {
-	const { logout } = useContext(AuthContext);
+	const { logout, currentUser } = useContext(AuthContext);
 
 	return (
 		<View style={{ flex: 1 }}>
@@ -50,7 +50,8 @@ const CustomDrawer = (props) => {
 						></LogoSvg>
 					)}
 					<Image
-						source={require('../assets/img.png')}
+						referrerpolicy='no-referrer'
+						source={currentUser.imageUrl}
 						style={{
 							height: 80,
 							width: 80,
@@ -59,8 +60,9 @@ const CustomDrawer = (props) => {
 						}}
 					></Image>
 					<Text style={{ color: '#fff', fontSize: 18, marginBottom: 5 }}>
-						username
+						{currentUser.firstName}
 					</Text>
+
 					<View style={{ flexDirection: 'row' }}>
 						<Text style={{ color: '#fff' }}>280 Points</Text>
 						<MaterialCommunityIcons
@@ -75,13 +77,13 @@ const CustomDrawer = (props) => {
 				</View>
 			</DrawerContentScrollView>
 			<View style={{ padding: 20, borderTopWidth: 1, borderTopColor: '#ccc' }}>
-				<TouchableOpacity onPress={() => {}} style={{ paddingVertical: 15 }}>
+				<TouchableOpacity onPress={() => {}} style={{ paddingVertical: 10 }}>
 					<View style={{ flexDirection: 'row', alignItems: 'center' }}>
 						<Ionicons name='share-social-outline' size={22}></Ionicons>
 						<Text style={{ fontSize: 15, marginLeft: 5 }}>Tell a friend</Text>
 					</View>
 				</TouchableOpacity>
-				<TouchableOpacity onPress={() => {}} style={{ paddingVertical: 15 }}>
+				<TouchableOpacity onPress={() => {}} style={{ paddingVertical: 10 }}>
 					<View style={{ flexDirection: 'row', alignItems: 'center' }}>
 						<Ionicons name='settings-outline' size={22}></Ionicons>
 						<Text style={{ fontSize: 15, marginLeft: 5 }}>Settings</Text>
@@ -91,7 +93,7 @@ const CustomDrawer = (props) => {
 					onPress={() => {
 						logout();
 					}}
-					style={{ paddingVertical: 15 }}
+					style={{ paddingVertical: 10 }}
 				>
 					<View style={{ flexDirection: 'row', alignItems: 'center' }}>
 						<Ionicons name='exit-outline' size={22}></Ionicons>
