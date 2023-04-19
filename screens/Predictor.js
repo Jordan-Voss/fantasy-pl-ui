@@ -9,7 +9,7 @@ import {
 	ImageBackground,
 	TextInput,
 } from 'react-native';
-import { useState, useContext } from 'react';
+import { useState, useContext, useRef, useEffect } from 'react';
 import { BASE_API_URL, ACCESS_TOKEN, CURRENT_USER } from '../config/config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomSwitch from '../components/CustomSwitch';
@@ -21,6 +21,8 @@ import { AuthContext } from '../context/AuthContext';
 import { getImageUrl } from '../util/PredictorUtils';
 import Feather from 'react-native-vector-icons/Feather';
 import comps from '../model/comps';
+import { Picker } from '@react-native-picker/picker';
+
 import { getStyles, getRating } from '../style';
 const Predictor = ({ navigation }) => {
 	const comps = [
@@ -35,27 +37,46 @@ const Predictor = ({ navigation }) => {
 	];
 	const windowWidth = useWindowDimensions().width;
 	const styles = getStyles(windowWidth);
-	const ratings = getRating();
-	const [openRating, setOpenRating] = useState(false);
-	const [valueRating, setValueRating] = useState('');
-	const [openRating59, setOpenRating59] = useState(false);
-	const [valueRating59, setValueRating59] = useState('');
-	const [lastSet59Rating, setLastSet59Rating] = useState('');
-	const [itemsRating, setItemsRating] = useState(ratings);
-	const [open, setOpen] = useState(false);
-	const [value, setValue] = useState('');
+	const numbers = [
+		'1',
+		'2',
+		'3',
+		'4',
+		'5',
+		'6',
+		'7',
+		'8',
+		'9',
+		'10',
+		'11',
+		'12',
+		'13',
+		'14',
+		'15',
+		'16',
+	];
+	const [value, setValue] = useState('820 819');
 	const [items, setItems] = useState(comps);
 	const [current59, setCurrent59] = useState(null);
-	const [open59, setOpen59] = useState(false);
+	// const [open59, setOpen59] = useState(false);
 	const [value59, setValue59] = useState('');
 	const [items59, setItems59] = useState([]);
 	const [current66, setCurrent66] = useState(null);
-	const [open66, setOpen66] = useState(false);
+	// const [open66, setOpen66] = useState(false);
 	const [value66, setValue66] = useState('');
 	const [items66, setItems66] = useState([]);
 	const [current74, setCurrent74] = useState(null);
+	const pickerRef = useRef();
+	const [selectedLanguage, setSelectedLanguage] = useState();
 
-	const [open74, setOpen74] = useState(false);
+	const open = () => {
+		pickerRef.current.focus();
+	};
+
+	const close = () => {
+		pickerRef.current.blur();
+	};
+	// const [open74, setOpen74] = useState(false);
 	const [value74, setValue74] = useState('');
 	const [items74, setItems74] = useState([]);
 	const [male, setMale] = useState(null);
@@ -92,6 +113,16 @@ const Predictor = ({ navigation }) => {
 				// console.log('JSON', json.athletes);
 				if (gndr === 'male') {
 					setMale(json.athletes);
+					console.log('aaa', json.athletes[1].athletes[0]);
+					setCurrent59(json.athletes[0].athletes[0]);
+					setValue59(json.athletes[0].athletes[0].imageurl);
+
+					setCurrent66(json.athletes[1].athletes[0]);
+					setValue66(json.athletes[1].athletes[0].imageurl);
+
+					setCurrent74(json.athletes[2].athletes[0]);
+					setValue74(json.athletes[2].athletes[0].imageurl);
+
 					// for (const element of json.athletes) {
 					// 	// console.log('WC', element);
 					// 	male.push(element);
@@ -105,7 +136,9 @@ const Predictor = ({ navigation }) => {
 
 	const handleGetAthletes = (item) => {
 		setMale(null);
-		var cids = value;
+		setValue(item);
+		console.log(item);
+		var cids = item;
 		cids = cids.split(' ');
 		getAthleteData(cids[0], 'male');
 		getAthleteData(cids[1], 'female');
@@ -145,6 +178,49 @@ const Predictor = ({ navigation }) => {
 		// return newState;
 	};
 
+	useEffect(() => {
+		handleGetAthletes(value);
+		setCurrent59(items59[0]);
+		setCurrent66(items66[0]);
+		setCurrent74(items74[0]);
+		console.log(current74);
+		// {
+		// 	fullRatings?.map((item) => {
+		// 		availableRatings.push(item.value);
+		// 	});
+		// }
+		//console.log('fullratings', fullRatings);
+		//console.log('availableRatings', availableRatings);
+	}, []);
+
+	const [dropdown59Items, setDropdown59Items] = useState(numbers);
+	const [dropdown66Items, setDropdown66Items] = useState(numbers);
+	const [dropdown74Items, setDropdown74Items] = useState(numbers);
+	const [dropdown59Value, setDropdown59Value] = useState(null);
+	const [dropdown66Value, setDropdown66Value] = useState(null);
+	const [dropdown74Value, setDropdown74Value] = useState(null);
+
+	const selectedValues = [dropdown59Value, dropdown66Value, dropdown74Value];
+	const [open59, setOpen59] = useState(false);
+	const [open66, setOpen66] = useState(false);
+	const [open74, setOpen74] = useState(false);
+	const handleDropdown59Select = (value) => {
+		if (!selectedValues.includes(value)) {
+			setDropdown59Value(value);
+		}
+	};
+
+	const handleDropdown66Select = (value) => {
+		if (!selectedValues.includes(value)) {
+			setDropdown66Value(value);
+		}
+	};
+
+	const handleDropdown74Select = (value) => {
+		if (!selectedValues.includes(value)) {
+			setDropdown74Value(value);
+		}
+	};
 	return (
 		<SafeAreaView style={{ flex: 1, backgroundColor: '#296478' }}>
 			<ScrollView style={{ padding: 20 }}>
@@ -162,22 +238,52 @@ const Predictor = ({ navigation }) => {
 						vehicula vulputate.
 					</Text>
 				</View>
-				<View>
-					<DropDownPicker
-						open={open}
-						value={value}
-						items={items}
-						setOpen={setOpen}
-						setValue={setValue}
-						setItems={setItems}
-						zIndex={1000}
-						onChangeValue={(item) => handleGetAthletes(item)}
-					/>
+				<View style={{ backgroundColor: 'red', borderRadius: 50 }}>
+					<Picker
+						mode={'dropdown'}
+						ref={pickerRef}
+						selectedValue={value}
+						onValueChange={(itemValue, itemIndex) =>
+							handleGetAthletes(itemValue)
+						}
+						noTopRadius={false}
+						noBottomRadius={false}
+						itemStyle={{
+							backgroundColor: 'grey',
+							color: 'blue',
+							fontFamily: 'Ebrima',
+							fontSize: 30,
+							width: '100%',
+							justifyContent: 'center',
+							textAlign: 'center',
+							borderRadius: 50,
+						}}
+						style={{
+							height: 50,
+							borderRadius: 50,
+							justifyContent: 'center',
+							alignItems: 'center',
+							textAlign: 'center',
+						}}
+					>
+						{comps?.map((item) => {
+							//console.log(item);
+							return (
+								<Picker.Item
+									style={{
+										textAlign: 'center',
+										justifyContent: 'center',
+										alignItems: 'center',
+										borderRadius: 50,
+									}}
+									label={item.label}
+									value={item.value}
+									key={item.label}
+								/>
+							);
+						})}
+					</Picker>
 				</View>
-				{/* <Text>
-				
-					{male?.length > 0 ? JSON.stringify(male[0].athletes[0]) : value}
-				</Text> */}
 				<Text>{value}</Text>
 				<View style={{ marginVertical: 20, zIndex: -10 }}>
 					<CustomSwitch
@@ -197,17 +303,15 @@ const Predictor = ({ navigation }) => {
 							justifyContent: 'center',
 						}}
 					>
-						{/* {male?.length > 0 ? JSON.stringify(male[0].athletes[0]) : value} */}
-
 						{male &&
 							male.map((weightClass) => {
-								// console.log('SDFG', male);
 								switch (weightClass.weightClass) {
 									case 'FIFTY_NINE':
 										items59.push(weightClass.athletes);
+										//console.log(current59);
 										return (
 											<View
-												key={weightClass.athletes[0].id}
+												key={weightClass.athletes[0].picker}
 												style={
 													windowWidth > 800
 														? styles.bigScreen
@@ -215,42 +319,71 @@ const Predictor = ({ navigation }) => {
 												}
 											>
 												<Text>{weightClass.weightClass}</Text>
-												<DropDownPicker
-													schema={{
-														label: 'picker',
-														value: 'id',
+												<Picker
+													mode={'dropdown'}
+													ref={pickerRef}
+													placeholder={'select -59KG'}
+													selectedValue={value59}
+													onValueChange={(itemValue, itemIndex) => {
+														// //console.log('bal', JSON.stringify(itemValue));
+														setValue59(itemValue);
+														setCurrent59(
+															items59[0].find((element) => {
+																//console.log('elem', element);
+																return element.imageurl === itemValue;
+															})
+														);
 													}}
-													open={open59}
-													searchable={true}
-													value={value59}
-													itemSeparator={true}
-													items={items59[0]}
-													setOpen={setOpen59}
-													setValue={setValue59}
-													setItems={setItems59}
-													zIndex={1000}
-													selectedItemContainerStyle={{
-														display: 'none',
+													noTopRadius={false}
+													noBottomRadius={false}
+													itemStyle={{
+														backgroundColor: 'grey',
+														color: 'blue',
+														fontFamily: 'Ebrima',
+														fontSize: 30,
+														width: '100%',
+														justifyContent: 'center',
+														textAlign: 'center',
+														borderRadius: 50,
 													}}
-													onChangeValue={(item) =>
-														getImageUrl(
-															weightClass.athletes,
-															setCurrent59,
-															current59,
-															value59
-														)
-													}
-												/>
-												<Text>{current59?.firstName}</Text>
+													style={{
+														height: 50,
+														borderRadius: 50,
+														justifyContent: 'center',
+														alignItems: 'center',
+														textAlign: 'center',
+													}}
+												>
+													{items59[0]?.map((item) => {
+														return (
+															<Picker.Item
+																style={{
+																	textAlign: 'center',
+																	justifyContent: 'center',
+																	alignItems: 'center',
+																	borderRadius: 50,
+																}}
+																label={item.picker}
+																value={item.imageurl}
+																key={item.picker}
+															/>
+														);
+													})}
+												</Picker>
 												<View style={{ flexDirection: 'row' }}>
 													<View style={{ flex: 1 }}>
 														<Image
 															referrerpolicy='no-referrer'
-															source={current59?.imageurl}
+															source={
+																value59.toLowerCase().indexOf('http') !== -1
+																	? value59
+																	: require('../assets/img.png')
+															}
 															style={{
 																justifyContent: 'flex-start',
 																// height: '275%',
-																width: '75%',
+																// height: '50%',
+																width: '50%',
 																aspectRatio: 1,
 
 																borderRadius: 40,
@@ -269,53 +402,108 @@ const Predictor = ({ navigation }) => {
 																		Nominated Bench: {current59?.bestBench}
 																	</Text>
 																	<Text>
-																		Nominated Deadlift:{' '}
+																		Nominated Deadlift:
 																		{current59?.bestDeadlift}
 																	</Text>
 																	<Text>
 																		Nominated Total: {current59?.bestTotal}
 																	</Text>
+																	{/* <Text>{selectedRatings}</Text> */}
 																</View>
 															</View>
 															<View style={{ flex: 1 }}>
 																<View style={{ justifyContent: 'flex-end' }}>
 																	<DropDownPicker
-																		// style={{ flex: 1 }}
-																		placeholder='Confidence Points'
-																		open={openRating}
-																		value={valueRating}
-																		items={itemsRating}
-																		setOpen={setOpenRating}
-																		setValue={setValueRating}
-																		setItems={setItemsRating}
-																		zIndex={1000}
+																		items={dropdown59Items.map((item) => ({
+																			label: item.toString(),
+																			value: item,
+																			disabled: selectedValues.includes(item),
+																		}))}
+																		value={dropdown59Value}
+																		setValue={setDropdown59Value}
+																		open={open59}
+																		setOpen={setOpen59}
+																		defaultValue={null}
+																		placeholder='Dropdown 1'
+																		containerStyle={styles.dropdownContainer}
+																		style={styles.dropdown}
 																		disabledItemContainerStyle={{
 																			display: 'none',
 																		}}
-																		// onChangeValue={(item) => {
-																		// 	console.log(item);
-																		// 	const newState = itemsRating.map(
-																		// 		(obj) => {
-																		// 			if (obj.value === item) {
-																		// 				console.log(obj.value);
-																		// 				return { ...obj, disabled: true };
-																		// 			}
-																		// 			return obj;
-																		// 		}
-																		// 	);
-																		// 	// const newStateReable = newState.map((obj) => {
-																		// 	// 	if (obj.value === lastSet59Rating) {
-																		// 	// 		return { ...obj, disabled: false };
-																		// 	// 	}
-																		// 	// 	return obj;
-																		// 	// });
-																		// 	setItemsRating(newState);
-																		// 	// setLastSet59Rating(items);
-																		// 	// console.log('ns', newStateReable);
-																		// 	// console.log('last', lastSet59Rating);
-																		// 	// return newState;
-																		// }}
+																		itemStyle={styles.dropdownItem}
+																		dropDownStyle={styles.dropdownMenu}
+																		onChangeItem={({ value }) =>
+																			handleDropdown59Select(value)
+																		}
 																	/>
+																	{/* <Picker
+																		mode={'dropdown'}
+																		ref={pickerRef}
+																		placeholder={'select -66KG'}
+																		selectedValue={valueRating59}
+																		onValueChange={(itemValue, itemIndex) => {
+																			//console.log('vle', itemValue);
+																			handleRatingSelected(
+																				itemValue,
+																				valueRating59
+																			);
+																			setValueRating59(itemValue);
+																			console.log('59', valueRating);
+																			// setCurrent66(
+																			// 	items66[0].find((element) => {
+																			// 		//console.log('elem', element);
+																			// 		return element.imageurl === itemValue;
+																			// 	})
+																			// );
+																		}}
+																		noTopRadius={false}
+																		noBottomRadius={false}
+																		itemStyle={{
+																			backgroundColor: 'grey',
+																			color: 'blue',
+																			fontFamily: 'Ebrima',
+																			fontSize: 30,
+																			width: '100%',
+																			justifyContent: 'center',
+																			textAlign: 'center',
+																			borderRadius: 50,
+																		}}
+																		style={{
+																			height: 50,
+																			borderRadius: 50,
+																			justifyContent: 'center',
+																			alignItems: 'center',
+																			textAlign: 'center',
+																		}}
+																	>
+																		{availableRatings
+																			?.filter(
+																				(filterItem) =>
+																					!selectedRatings.includes(filterItem)
+																			)
+																			.map((item) => {
+																				//console.log(
+																				// 	'i',
+																				// 	i,
+																				// 	item,
+																				// 	fullRatings,
+																				// 	availableRatings
+																				// );
+																				return (
+																					<Picker.Item
+																						style={{
+																							textAlign: 'center',
+																							justifyContent: 'center',
+																							alignItems: 'center',
+																							borderRadius: 50,
+																						}}
+																						label={item}
+																						value={item}
+																						key={item}
+																					/>
+																				);
+																			})}
+																	</Picker> */}
 																</View>
 															</View>
 														</>
@@ -327,7 +515,7 @@ const Predictor = ({ navigation }) => {
 										items66.push(weightClass.athletes);
 										return (
 											<View
-												key={weightClass.athletes[0].id}
+												key={weightClass.athletes[0].picker}
 												style={
 													windowWidth > 800
 														? styles.bigScreen
@@ -335,41 +523,72 @@ const Predictor = ({ navigation }) => {
 												}
 											>
 												<Text>{weightClass.weightClass}</Text>
-												<DropDownPicker
-													schema={{
-														label: 'picker',
-														value: 'id',
+												<Picker
+													mode={'dropdown'}
+													ref={pickerRef}
+													placeholder={'select -66KG'}
+													selectedValue={value66}
+													onValueChange={(itemValue, itemIndex) => {
+														// //console.log('bal', JSON.stringify(itemValue));
+														setValue66(itemValue);
+														setCurrent66(
+															items66[0].find((element) => {
+																//console.log('elem', element);
+																return element.imageurl === itemValue;
+															})
+														);
 													}}
-													open={open66}
-													searchable={true}
-													value={value66}
-													itemSeparator={true}
-													items={items66[0]}
-													setOpen={setOpen66}
-													setValue={setValue66}
-													setItems={setItems66}
-													zIndex={1000}
-													onChangeValue={
-														(item) =>
-															getImageUrl(
-																weightClass.athletes,
-																setCurrent66,
-																current66,
-																value66
-															)
-														// handleGetUrl(weightClass.athletes)
-													}
-												/>
+													noTopRadius={false}
+													noBottomRadius={false}
+													itemStyle={{
+														backgroundColor: 'grey',
+														color: 'blue',
+														fontFamily: 'Ebrima',
+														fontSize: 30,
+														width: '100%',
+														justifyContent: 'center',
+														textAlign: 'center',
+														borderRadius: 50,
+													}}
+													style={{
+														height: 50,
+														borderRadius: 50,
+														justifyContent: 'center',
+														alignItems: 'center',
+														textAlign: 'center',
+													}}
+												>
+													{items66[0]?.map((item) => {
+														return (
+															<Picker.Item
+																style={{
+																	textAlign: 'center',
+																	justifyContent: 'center',
+																	alignItems: 'center',
+																	borderRadius: 50,
+																}}
+																label={item.picker}
+																value={item.imageurl}
+																key={item.picker}
+															/>
+														);
+													})}
+												</Picker>
 												<Text>{current66?.firstName}</Text>
 												<View style={{ flexDirection: 'row' }}>
 													<View style={{ flex: 1 }}>
 														<Image
 															referrerpolicy='no-referrer'
-															source={current66?.imageurl}
+															source={
+																value66.toLowerCase().indexOf('http') !== -1
+																	? value66
+																	: require('../assets/img.png')
+															}
 															style={{
 																justifyContent: 'flex-start',
 																// height: '275%',
-																width: '75%',
+																// height: '50%',
+																width: '50%',
 																aspectRatio: 1,
 
 																borderRadius: 40,
@@ -398,7 +617,32 @@ const Predictor = ({ navigation }) => {
 															</View>
 															<View style={{ flex: 1 }}>
 																<View style={{ justifyContent: 'flex-end' }}>
+																	{/* <Text>{availableRatings}</Text> */}
 																	<DropDownPicker
+																		items={dropdown66Items.map((item) => ({
+																			label: item.toString(),
+																			value: item,
+																			disabled: selectedValues.includes(item),
+																		}))}
+																		value={dropdown66Value}
+																		setValue={setDropdown66Value}
+																		open={open66}
+																		setOpen={setOpen66}
+																		defaultValue={null}
+																		disabledItemContainerStyle={{
+																			display: 'none',
+																		}}
+																		placeholder='Dropdown 2'
+																		containerStyle={styles.dropdownContainer}
+																		style={styles.dropdown}
+																		itemStyle={styles.dropdownItem}
+																		dropDownStyle={styles.dropdownMenu}
+																		onChangeItem={({ value }) =>
+																			handleDropdown66Select(value)
+																		}
+																	/>
+
+																	{/* <DropDownPicker
 																		// style={{ flex: 1 }}
 																		placeholder='Confidence Points'
 																		open={openRating59}
@@ -414,7 +658,7 @@ const Predictor = ({ navigation }) => {
 																		// onChangeValue={(item) =>
 																		// 	handleSetRating(item)
 																		// }
-																	/>
+																	/> */}
 																</View>
 															</View>
 														</>
@@ -426,7 +670,7 @@ const Predictor = ({ navigation }) => {
 										items74.push(weightClass.athletes);
 										return (
 											<View
-												key={weightClass.athletes[0].id}
+												key={weightClass.athletes[0].picker}
 												style={
 													windowWidth > 800
 														? styles.bigScreen
@@ -434,41 +678,72 @@ const Predictor = ({ navigation }) => {
 												}
 											>
 												<Text>{weightClass.weightClass}</Text>
-												<DropDownPicker
-													schema={{
-														label: 'picker',
-														value: 'id',
+												<Picker
+													mode={'dropdown'}
+													ref={pickerRef}
+													placeholder={'select -74KG'}
+													selectedValue={value74}
+													onValueChange={(itemValue, itemIndex) => {
+														// //console.log('bal', JSON.stringify(itemValue));
+														setValue74(itemValue);
+														setCurrent74(
+															items74[0].find((element) => {
+																//console.log('elem', element);
+																return element.imageurl === itemValue;
+															})
+														);
 													}}
-													open={open74}
-													searchable={true}
-													value={value74}
-													itemSeparator={true}
-													items={items74[0]}
-													setOpen={setOpen74}
-													setValue={setValue74}
-													setItems={setItems74}
-													zIndex={1000}
-													onChangeValue={
-														(item) =>
-															getImageUrl(
-																weightClass.athletes,
-																setCurrent74,
-																current74,
-																value74
-															)
-														// handleGetUrl(weightClass.athletes)
-													}
-												/>
+													noTopRadius={false}
+													noBottomRadius={false}
+													itemStyle={{
+														backgroundColor: 'grey',
+														color: 'blue',
+														fontFamily: 'Ebrima',
+														fontSize: 30,
+														width: '100%',
+														justifyContent: 'center',
+														textAlign: 'center',
+														borderRadius: 50,
+													}}
+													style={{
+														height: 50,
+														borderRadius: 50,
+														justifyContent: 'center',
+														alignItems: 'center',
+														textAlign: 'center',
+													}}
+												>
+													{items74[0]?.map((item) => {
+														return (
+															<Picker.Item
+																style={{
+																	textAlign: 'center',
+																	justifyContent: 'center',
+																	alignItems: 'center',
+																	borderRadius: 50,
+																}}
+																label={item.picker}
+																value={item.imageurl}
+																key={item.picker}
+															/>
+														);
+													})}
+												</Picker>
 												<Text>{current74?.firstName}</Text>
 												<View style={{ flexDirection: 'row' }}>
 													<View style={{ flex: 1 }}>
 														<Image
 															referrerpolicy='no-referrer'
-															source={current74?.imageurl}
+															source={
+																value74.toLowerCase().indexOf('http') !== -1
+																	? value74
+																	: require('../assets/img.png')
+															}
 															style={{
 																justifyContent: 'flex-start',
 																// height: '275%',
-																width: '75%',
+																// height: '50%',
+																width: '50%',
 																aspectRatio: 1,
 
 																borderRadius: 40,
@@ -476,23 +751,54 @@ const Predictor = ({ navigation }) => {
 															}}
 														></Image>
 													</View>
+
 													{current74 != null ? (
-														<View style={{ flex: 1, width: '50%' }}>
-															<View style={{ justifyContent: 'flex-end' }}>
-																<Text>
-																	Nominated Squat: {current74?.bestSquat}
-																</Text>
-																<Text>
-																	Nominated Bench: {current74?.bestBench}
-																</Text>
-																<Text>
-																	Nominated Deadlift: {current74?.bestDeadlift}
-																</Text>
-																<Text>
-																	Nominated Total: {current74?.bestTotal}
-																</Text>
+														<>
+															<View style={{ flex: 1, width: '50%' }}>
+																<View style={{ justifyContent: 'center' }}>
+																	<Text>
+																		Nominated Squat: {current74?.bestSquat}
+																	</Text>
+																	<Text>
+																		Nominated Bench: {current74?.bestBench}
+																	</Text>
+																	<Text>
+																		Nominated Deadlift:{' '}
+																		{current74?.bestDeadlift}
+																	</Text>
+																	<Text>
+																		Nominated Total: {current74?.bestTotal}
+																	</Text>
+																</View>
 															</View>
-														</View>
+															<View style={{ flex: 1 }}>
+																<View style={{ justifyContent: 'flex-end' }}>
+																	<DropDownPicker
+																		items={dropdown74Items.map((item) => ({
+																			label: item.toString(),
+																			value: item,
+																			disabled: selectedValues.includes(item),
+																		}))}
+																		value={dropdown74Value}
+																		setValue={setDropdown74Value}
+																		open={open74}
+																		setOpen={setOpen74}
+																		defaultValue={null}
+																		placeholder='Dropdown 3'
+																		disabledItemContainerStyle={{
+																			display: 'none',
+																		}}
+																		containerStyle={styles.dropdownContainer}
+																		style={styles.dropdown}
+																		itemStyle={styles.dropdownItem}
+																		dropDownStyle={styles.dropdownMenu}
+																		onChangeItem={({ value }) =>
+																			handleDropdown74Select(value)
+																		}
+																	/>
+																</View>
+															</View>
+														</>
 													) : null}
 												</View>
 											</View>
