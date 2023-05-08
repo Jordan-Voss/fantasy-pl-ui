@@ -10,3 +10,9 @@ export const getImageUrl = (
 	setWeightClass(array.find((element) => element.id === athleteValue));
 	console.log('59', weightClass);
 };
+
+export const handleSetValue = (val) => {
+	// console.log(val);
+	setValue(val);
+	handleGetAthletes();
+};

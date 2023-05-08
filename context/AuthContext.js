@@ -53,6 +53,16 @@ export const AuthProvider = ({ children }) => {
 		});
 	}
 
+	function savePrediction(predictionRequest) {
+		console.log('save prediction' + predictionRequest);
+		setIsLoading(true);
+		return request({
+			url: BASE_API_URL + '/predictor/save',
+			method: 'POST',
+			body: predictionRequest,
+		});
+	}
+
 	function register(registerRequest) {
 		console.log('LOGIN' + registerRequest);
 		setIsLoading(true);
@@ -111,6 +121,7 @@ export const AuthProvider = ({ children }) => {
 				userToken,
 				register,
 				getCurrentUser,
+				savePrediction,
 			}}
 		>
 			{children}

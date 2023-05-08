@@ -13,6 +13,15 @@ export const getStyles = (windowWidth) =>
 			padding: 15,
 			width: windowWidth * 0.9,
 		},
+		text: {
+			fontSize: 20,
+			fontWeight: 100,
+			color: '#fff',
+			flex: 1,
+		},
+		dropdown: {
+			// width: '70%',
+		},
 	});
 export const getRating = () => {
 	return [
